@@ -15,5 +15,5 @@ dependencyResolutionManagement {
    }
 }
 
-rootProject.name = "A4_02_CoroutinesFlowsDI"
+rootProject.name = "A4_02_CoroutinesFlowsDi"
 include(":app")
