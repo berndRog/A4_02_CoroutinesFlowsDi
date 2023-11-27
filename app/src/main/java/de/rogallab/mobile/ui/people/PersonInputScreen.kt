@@ -1,7 +1,5 @@
 package de.rogallab.mobile.ui.people
 
-import de.rogallab.mobile.ui.navigation.NavScreen
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,10 +18,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,11 +28,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.rogallab.mobile.R
 import de.rogallab.mobile.domain.UiState
+import de.rogallab.mobile.domain.entities.Person
 import de.rogallab.mobile.domain.utilities.logInfo
+import de.rogallab.mobile.ui.navigation.NavScreen
+import de.rogallab.mobile.ui.people.composables.HandleUiStateError
 import de.rogallab.mobile.ui.people.composables.InputNameMailPhone
+import de.rogallab.mobile.ui.people.composables.LogUiStates
 import de.rogallab.mobile.ui.people.composables.isInputValid
-import kotlinx.coroutines.launch
-import de.rogallab.mobile.ui.people.composables.showErrorMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,20 +56,11 @@ fun PersonInputScreen(
       }
    )
 
+   val uiStateFlow by viewModel.uiStateFlow.collectAsStateWithLifecycle()
+   LogUiStates(uiStateFlow,"UiStateFlow", tag )
+
    val context = LocalContext.current
    val snackbarHostState = remember { SnackbarHostState() }
-   val uiStateFlow by viewModel.uiStateFlow.collectAsStateWithLifecycle()
-
-   val up = uiStateFlow.upHandler
-   val back =uiStateFlow.backHandler
-   if(uiStateFlow is UiState.Empty)
-      Log.v(tag,"Composition UiState.Empty $up $back")
-   else if(uiStateFlow is UiState.Loading)
-      Log.v(tag,"Composition UiState.Loading $up $back")
-   else if(uiStateFlow is UiState.Success)
-      Log.v(tag,"Composition UiState.Success $up $back")
-   else if(uiStateFlow is UiState.Error)
-      Log.v(tag,"Composition UiState.Error $up $back")
 
    Scaffold(
       topBar = {
@@ -135,29 +124,14 @@ fun PersonInputScreen(
    }
 
    if (uiStateFlow is UiState.Error) {
-      val backHandler = uiStateFlow.backHandler
-      val message = (uiStateFlow as UiState.Error).message
-      val coroutineScope = rememberCoroutineScope()
-      LaunchedEffect(uiStateFlow as UiState.Error) {
-         val job = coroutineScope.launch {
-            showErrorMessage(
-               snackbarHostState = snackbarHostState,
-               errorMessage = message,
-               actionLabel = "Ok",
-               onErrorAction = { }
-            )
-         }
-         coroutineScope.launch {
-            job.join()
-            if(backHandler) {
-               logInfo(tag, "Back Navigation (Abort)")
-               navController.popBackStack(
-                  route = NavScreen.PeopleList.route,
-                  inclusive = false
-               )
-            }
-            viewModel.onUiStateFlowChange(UiState.Empty)
-         }
-      }
+      HandleUiStateError(
+         uiStateFlow = uiStateFlow,
+         actionLabel = "Ok",
+         onErrorAction = { },
+         navController = navController,
+         snackbarHostState = snackbarHostState,
+         onUiStateFlowChange = { viewModel.onUiStateFlowChange(it) },
+         tag = tag
+      )
    }
 }

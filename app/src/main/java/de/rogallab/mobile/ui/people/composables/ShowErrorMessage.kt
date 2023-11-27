@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import de.rogallab.mobile.domain.utilities.logDebug
 
-suspend fun showErrorMessage(
+suspend fun ShowErrorMessage(
    snackbarHostState: SnackbarHostState,                     // State ↓
    errorMessage: String,                                     // State ↓
    actionLabel: String?,                                     // State ↓

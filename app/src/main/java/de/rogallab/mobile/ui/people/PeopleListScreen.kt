@@ -1,8 +1,6 @@
 package de.rogallab.mobile.ui.people
 
-import de.rogallab.mobile.ui.navigation.NavScreen
 import android.app.Activity
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,7 +28,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,13 +41,13 @@ import de.rogallab.mobile.R
 import de.rogallab.mobile.domain.UiState
 import de.rogallab.mobile.domain.entities.Person
 import de.rogallab.mobile.domain.utilities.logDebug
-import de.rogallab.mobile.domain.utilities.logError
 import de.rogallab.mobile.domain.utilities.logInfo
-import de.rogallab.mobile.ui.people.composables.showErrorMessage
+import de.rogallab.mobile.ui.navigation.NavScreen
+import de.rogallab.mobile.ui.people.composables.HandleUiStateError
+import de.rogallab.mobile.ui.people.composables.LogUiStates
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
 fun PeopleListScreen(
    navController: NavController,
@@ -60,32 +57,10 @@ fun PeopleListScreen(
 
    val uiStateFlow: UiState<Person>
       by viewModel.uiStateFlow.collectAsStateWithLifecycle()
-
    val uiStateListFlow: UiState<List<Person>>
       by viewModel.uiStateListFlow.collectAsStateWithLifecycle()
-
-   val up = uiStateFlow.upHandler
-   val back =uiStateFlow.backHandler
-   if(uiStateFlow is UiState.Empty)
-      Log.v(tag,"Composition UiState.Empty $up $back")
-   else if(uiStateFlow is UiState.Loading)
-      Log.v(tag,"Composition UiState.Loading $up $back")
-   else if(uiStateFlow is UiState.Success)
-      Log.v(tag,"Composition UiState.Success $up $back")
-   else if(uiStateFlow is UiState.Error)
-      Log.v(tag,"Composition UiState.Error $up $back")
-
-   val upList = uiStateFlow.upHandler
-   val backList = uiStateFlow.backHandler
-
-   if (uiStateListFlow is UiState.Empty)
-      Log.v(tag, "Composition UiStateListFlow UiState.Empty $upList $backList")
-   else if (uiStateListFlow is UiState.Loading)
-      Log.v(tag, "Composition UiStateListFlow UiState.Loading $upList $backList")
-   else if (uiStateListFlow is UiState.Success)
-      Log.v(tag, "Composition UiStateListFlow UiState.Success $upList $backList")
-   else if (uiStateListFlow is UiState.Error)
-      Log.v(tag, "Composition UiStateListFlow UiState.Error $upList $backList")
+   LogUiStates(uiStateFlow,"UiStateFlow", tag )
+   LogUiStates(uiStateListFlow,"UiStateListFlow", tag )
 
    val snackbarHostState = remember { SnackbarHostState() }
 
@@ -182,32 +157,27 @@ fun PeopleListScreen(
             }
          }
       }
-   }
-
-   if (uiStateListFlow is UiState.Error) {
-      LaunchedEffect(key1 = uiStateListFlow is UiState.Error) {
-         val message = (uiStateListFlow as UiState.Error).message
-         logError(tag, "uiStateListFlow.Error $message")
-         showErrorMessage(
-            snackbarHostState = snackbarHostState,
-            errorMessage = message,
+      if (uiStateListFlow is UiState.Error) {
+         HandleUiStateError<List<Person>>(
+            uiStateFlow = uiStateListFlow,
             actionLabel = "Ok",
-            onErrorAction = { }
+            onErrorAction = { null },
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            onUiStateFlowChange = { null  },
+            tag = tag
          )
       }
-   }
-
-   if (uiStateFlow is UiState.Error) {
-      LaunchedEffect(key1 = uiStateFlow is UiState.Error) {
-         val message = (uiStateFlow as UiState.Error).message
-         logDebug(tag, "uiStateFlow.Error $message")
-         showErrorMessage(
-            snackbarHostState = snackbarHostState,
-            errorMessage = message,
+      if (uiStateFlow is UiState.Error) {
+         HandleUiStateError<Person>(
+            uiStateFlow = uiStateFlow,
             actionLabel = "Ok",
-            onErrorAction = { }
+            onErrorAction = { },
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            onUiStateFlowChange = { viewModel.onUiStateFlowChange(it) },
+            tag = tag
          )
-         viewModel.onUiStateFlowChange(UiState.Success(Person()))
       }
    }
 }
