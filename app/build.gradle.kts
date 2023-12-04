@@ -116,7 +116,7 @@ dependencies {
 
    // Room Database
    // https://developer.android.com/jetpack/androidx/releases/room
-   val roomVersion = "2.6.0"
+   val roomVersion = "2.6.1"
    implementation("androidx.room:room-runtime:$roomVersion")
    implementation("androidx.room:room-ktx:$roomVersion")
 // kapt("androidx.room:room-compiler:$roomVersion")
@@ -126,7 +126,7 @@ dependencies {
    // https://developer.android.com/training/dependency-injection/hilt-android
    // https://dagger.dev/hilt/
    // https://developer.android.com/jetpack/androidx/releases/hilt
-   val hiltAndroidVersion = "2.48.1"
+   val hiltAndroidVersion = "2.49"
    val hiltVersion = "1.1.0"
    implementation ("com.google.dagger:hilt-android:$hiltAndroidVersion")
    ksp("com.google.dagger:hilt-compiler:$hiltAndroidVersion")

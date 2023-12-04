@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <uses-feature
-    android:name="android.hardware.camera"
-    android:required="false" />
-  <uses-permission android:name="android.permission.CAMERA" />
-
   <application
     android:name=".AppStart"
     android:allowBackup="true"
@@ -16,12 +11,12 @@
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/Theme.A4_02_RoomTask"
+    android:theme="@style/Theme.A4_02_CoroutinesFlowsDi"
     tools:targetApi="34">
     <activity
       android:name="de.rogallab.mobile.ui.MainActivity"
       android:exported="true"
-      android:theme="@style/Theme.A4_02_RoomTask">
+      android:theme="@style/Theme.A4_02_CoroutinesFlowsDi">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
